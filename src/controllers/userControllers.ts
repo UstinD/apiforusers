@@ -1,83 +1,76 @@
-import { IUser, users } from '../repository/users';
+import { IUser, usersMap } from '../repository/users';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
-// get a user
+// get a org
 export const getUser = (req: Request, res: Response) => {
-  const found = users.some(
-    (user) => Number(user.id) === parseInt(req.params.id)
-  );
+  const foundUser = usersMap[req.params.id];
 
-  if (found) {
-    return res.json(
-      users.filter((user) => Number(user.id) === parseInt(req.params.id))
-    );
+  if (foundUser) {
+    return res.json(usersMap[req.params.id]);
   } else {
-    return res.sendStatus(400);
+    return res.sendStatus(404);
   }
 };
 
-// get users
+// get orgs
 export const getUsers = (req: Request, res: Response) => {
-  return res.json(users);
+  return res.json(usersMap);
 };
 
-// post user
+// post org
 export const postUser = (req: Request, res: Response) => {
-  const newUser: IUser = {
-    id: uuidv4(),
+  const newId = uuidv4();
+  const newuser: IUser = {
+    id: newId,
     name: req.body.name,
     email: req.body.email
   };
 
-  if (!newUser.name || !newUser.email) {
+  if (!newuser.name || !newuser.email) {
     return res.sendStatus(400);
   }
 
-  users.push(newUser);
-  return res.json(users);
+  usersMap[newId] = newuser;
+  return res.json(usersMap);
 };
 
-// update user
+// update org
 export const updateUser = (req: Request, res: Response) => {
-  const found = users.some(
-    (user) => Number(user.id) === parseInt(req.params.id)
-  );
 
-  if (found) {
-    const updateUser = req.body;
+  const foundUser = usersMap[req.params.id];
 
-    users.forEach((user) => {
-      if (Number(user.id) === parseInt(req.params.id)) {
-        user.name = updateUser.name ? updateUser.name : user.name;
-        user.email = updateUser.email ? updateUser.email : user.email;
-        return res.json({ msg: 'User updated', user });
-      }
-    });
+  if (foundUser) {
+    const updateduser: IUser = {
+      id: req.params.id,
+      name: req.body.name,
+      email: req.body.email
+    };
+    usersMap[req.params.id] = updateduser;
+    return res.json({ msg: 'user updated', updateduser });
+    // orgs.forEach((org) => {
+    //   if (Number(org.id) === parseInt(req.params.id)) {
+    //     org.name = updateorg.name ? updateorg.name : org.name;
+    //     org.motto = updateorg.motto ? updateorg.motto : org.motto;
+    //     return res.json({ msg: 'org updated', org });
+    //   }
+    // });
   } else {
-    return res.sendStatus(400);
+    return res.sendStatus(404);
   }
 };
 
-// delete user
+// delete org
 export const deleteUser = (req: Request, res: Response) => {
-  const found = users.some(
-    (user) => Number(user.id) === parseInt(req.params.id)
-  );
+  const foundUser = usersMap[req.params.id];
 
-  if (found) {
-    const indexOfObject = users.findIndex((user) => {
-      return user.id === req.params.id;
-    });
-
-    if (indexOfObject !== -1) {
-      users.splice(indexOfObject, 1);
-    }
+  if (foundUser) {
+    delete usersMap[req.params.id];
     return res.json({
-      msg: 'User deleted',
-      users
+      msg: 'user deleted',
+      usersMap
     });
   } else {
-    return res.sendStatus(400);
+    return res.sendStatus(404);
   }
 };
