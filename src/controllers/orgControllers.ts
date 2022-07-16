@@ -41,7 +41,6 @@ export const postOrg = (req: Request, res: Response) => {
 
 // update org
 export const updateOrg = (req: Request, res: Response) => {
-
   const foundOrg = orgsMap[req.params.orgID];
 
   if (foundOrg) {
@@ -49,20 +48,13 @@ export const updateOrg = (req: Request, res: Response) => {
 
     const updatedorg: IOrg = {
       id: req.params.orgID,
-      name: req.body.name,
+      name: req.body.name || currentOrg.name,
       orgType: currentOrg.orgType,
-      motto: req.body.motto,
+      motto: req.body.motto || currentOrg.motto,
       users: currentOrg.users
     };
     orgsMap[req.params.orgID] = updatedorg;
     return res.json({ msg: 'org updated', updatedorg });
-    // orgs.forEach((org) => {
-    //   if (Number(org.id) === parseInt(req.params.id)) {
-    //     org.name = updateorg.name ? updateorg.name : org.name;
-    //     org.motto = updateorg.motto ? updateorg.motto : org.motto;
-    //     return res.json({ msg: 'org updated', org });
-    //   }
-    // });
   } else {
     return res.sendStatus(404);
   }
@@ -117,4 +109,25 @@ export const postUserToOrg = (req: Request, res: Response) => {
 
   orgsMap[req.params.orgID].users.push(newUser);
   return res.json(orgsMap[req.params.orgID].users);
+};
+
+// delete user
+export const deleteUserFromOrg = (req: Request, res: Response) => {
+  const foundUser = orgsMap[req.params.orgID].users;
+  const found = foundUser.some((user) => user.id === req.params.id);
+
+  if (found) {
+    const indexOfObject = foundUser.findIndex((object) => {
+      return object.id === req.params.id;
+    });
+    if (indexOfObject !== -1) {
+      orgsMap[req.params.orgID].users.splice(indexOfObject, 1);
+    }
+    res.json({
+      msg: 'User deleted',
+      foundUser
+    });
+  } else {
+    res.sendStatus(400);
+  }
 };

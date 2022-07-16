@@ -2,7 +2,7 @@ import { IUser, usersMap } from '../repository/users';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
-// get a org
+// get a user
 export const getUser = (req: Request, res: Response) => {
   const foundUser = usersMap[req.params.id];
 
@@ -13,12 +13,12 @@ export const getUser = (req: Request, res: Response) => {
   }
 };
 
-// get orgs
+// get users
 export const getUsers = (req: Request, res: Response) => {
   return res.json(usersMap);
 };
 
-// post org
+// post user
 export const postUser = (req: Request, res: Response) => {
   const newId = uuidv4();
   const newuser: IUser = {
@@ -35,9 +35,8 @@ export const postUser = (req: Request, res: Response) => {
   return res.json(usersMap);
 };
 
-// update org
+// update user
 export const updateUser = (req: Request, res: Response) => {
-
   const foundUser = usersMap[req.params.id];
 
   if (foundUser) {
@@ -60,7 +59,7 @@ export const updateUser = (req: Request, res: Response) => {
   }
 };
 
-// delete org
+// delete user
 export const deleteUser = (req: Request, res: Response) => {
   const foundUser = usersMap[req.params.id];
 
