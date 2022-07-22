@@ -1,21 +1,18 @@
-import { IOrg, orgsMap, OrgType, Orgs } from '../repository/orgs';
+import { IOrg } from '../repository/orgs';
+import instance from '../repository/orgs';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { IUser } from '../repository/users';
 import Ajv from 'ajv';
-import { json } from 'stream/consumers';
 
 // get a org
 export const getOrg = async (req: Request, res: Response) => {
-  const orgs = new Orgs();
-  const listoforgs = await orgs.getOrg(req.params.orgID);
+  const listoforgs = await instance.getOrg(req.params.orgID);
   return res.json(listoforgs);
 };
 
 // get orgs
 export const getOrgs = async (req: Request, res: Response) => {
-  const orgs = new Orgs();
-  const listoforgs = await orgs.getOrgs();
+  const listoforgs = await instance.getOrgs();
   return res.json(listoforgs);
 };
 
@@ -48,15 +45,17 @@ export const postOrg = async (req: Request, res: Response) => {
     });
   }
 
-  const orgs = new Orgs();
-  const listoforgs = await orgs.postOrg(newId, req.body.org_name, req.body.motto);
+  const listoforgs = await instance.postOrg(
+    newId,
+    req.body.org_name,
+    req.body.motto
+  );
   return res.json(listoforgs);
 };
 
 // update org
 export const updateOrg = async (req: Request, res: Response) => {
-  const org = new Orgs();
-  const foundOrg = await org.getOrg(req.params.orgID);
+  const foundOrg = await instance.getOrg(req.params.orgID);
 
   if (foundOrg) {
     const ajv = new Ajv();
@@ -97,7 +96,11 @@ export const updateOrg = async (req: Request, res: Response) => {
       });
     }
 
-    const didupdate = await org.updateOrg(req.params.orgID, thename, themotto);
+    const didupdate = await instance.updateOrg(
+      req.params.orgID,
+      thename,
+      themotto
+    );
     if (didupdate) {
       return res.json({ msg: 'org updated', updatedorg });
     }
@@ -109,10 +112,9 @@ export const updateOrg = async (req: Request, res: Response) => {
 
 // delete org
 export const deleteOrg = async (req: Request, res: Response) => {
-  const orgs = new Orgs();
-  const diddelete = await orgs.deleteOrg(req.params.orgID);
+  const diddelete = await instance.deleteOrg(req.params.orgID);
   if (diddelete) {
-    const listoforgs = await orgs.getOrgs();
+    const listoforgs = await instance.getOrgs();
     return res.json({
       msg: 'org deleted',
       listoforgs
@@ -123,77 +125,6 @@ export const deleteOrg = async (req: Request, res: Response) => {
 
 // get org users
 export const getOrgUsers = async (req: Request, res: Response) => {
-  const orgs = new Orgs();
-  const listoforgs = await orgs.getOrgUsers(req.params.orgID);
+  const listoforgs = await instance.getOrgUsers(req.params.orgID);
   return res.json(listoforgs);
 };
-
-// get a user from org
-// export const getUserFromOrg = (req: Request, res: Response) => {
-//   const found = orgsMap[req.params.orgID].users;
-
-//   if (found) {
-//     return res.json(found.filter((user) => user.id === req.params.id));
-//   } else {
-//     return res.sendStatus(400);
-//   }
-// };
-
-// post user to org
-// export const postUserToOrg = (req: Request, res: Response) => {
-//   const ajv = new Ajv();
-//   const schema = {
-//     type: 'object',
-//     properties: {
-//       id: { type: 'string'},
-//       name: { type: 'string' },
-//       email: { type: 'string', format: 'email' }
-//     },
-//     required: ['id', 'name', 'email'],
-//     additionalProperties: false
-//   };
-
-//   const newUser: IUser = {
-//     id: uuidv4(),
-//     name: req.body.name,
-//     email: req.body.email
-//   };
-//   const validate = ajv.compile(schema);
-//   const valid = validate(newUser);
-
-//   if (!valid) {
-//     return res.json({
-//       msg: `your request was not valid because ${JSON.stringify(
-//         validate.errors
-//       )}`
-//     });
-//   }
-
-//   // if (!newUser.name || !newUser.email) {
-//   //   return res.sendStatus(400);
-//   // }
-
-//   orgsMap[req.params.orgID].users.push(newUser);
-//   return res.json(orgsMap[req.params.orgID].users);
-// };
-
-// // delete user
-// export const deleteUserFromOrg = (req: Request, res: Response) => {
-//   const foundUser = orgsMap[req.params.orgID].users;
-//   const found = foundUser.some((user) => user.id === req.params.id);
-
-//   if (found) {
-//     const indexOfObject = foundUser.findIndex((object) => {
-//       return object.id === req.params.id;
-//     });
-//     if (indexOfObject !== -1) {
-//       orgsMap[req.params.orgID].users.splice(indexOfObject, 1);
-//     }
-//     res.json({
-//       msg: 'User deleted',
-//       foundUser
-//     });
-//   } else {
-//     res.sendStatus(400);
-//   }
-// };

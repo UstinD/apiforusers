@@ -10,29 +10,6 @@ export interface IUser {
   org_id?: string | null;
 }
 
-// export const usersMap: { [key: string]: IUser } = {
-//   '1': {
-//     user_id: '1',
-//     username: 'John',
-//     email: 'john@gmail.com'
-//   },
-//   '2': {
-//     user_id: '2',
-//     username: 'Smith',
-//     email: 'smith@gmail.com'
-//   },
-//   '3': {
-//     user_id: '3',
-//     username: 'Chris',
-//     email: 'chris@gmail.com'
-//   },
-//   '4': {
-//     user_id: '4',
-//     username: 'Jack',
-//     email: 'jack@gmail.com'
-//   }
-// };
-
 class Users {
   readonly pool;
 
@@ -107,6 +84,7 @@ class Users {
     orgid?: string
   ): Promise<boolean> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let update: any;
       if (orgid) {
         update = await this.pool.query(
@@ -135,7 +113,7 @@ class Users {
       );
       if (theUser.rows.length == 1) {
         const isValid = bcrpyt.compareSync(password, theUser.rows[0].password);
-        if(!isValid) {
+        if (!isValid) {
           return 'false';
         }
         const token = Jwt.sign({ id: theUser.rows[0].user_id }, SECRET, {

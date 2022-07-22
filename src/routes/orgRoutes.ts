@@ -1,5 +1,4 @@
 import express from 'express';
-import Ajv from 'ajv';
 import {
   getOrg,
   getOrgs,
@@ -21,9 +20,5 @@ router.route('/:orgID').patch(updateOrg);
 router.route('/').post(postOrg);
 router.route('/:orgID').delete(deleteOrg);
 router.route('/:orgID/users').get(getOrgUsers);
-// router.route('/:orgID/users').get(getOrgUsers);
-// router.route('/:orgID/users').post(postUserToOrg);
-// router.route('/:orgID/users/:id').get(getUserFromOrg);
-// router.route('/:orgID/users/:id').delete(deleteUserFromOrg);
 
 export default router;

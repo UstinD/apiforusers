@@ -15,33 +15,6 @@ export interface IUserFromOrg {
   username: string;
 }
 
-// export const orgs: IOrg[] = [
-//   {
-//     id: '1',
-//     name: 'Nike',
-//     motto: 'Just Do it'
-//   },
-//   {
-//     id: '2',
-//     name: 'KFC',
-//     motto: "Finger Lickin' Good"
-//   },
-//   {
-//     id: '3',
-//     name: 'McDonalds',
-//     motto: "I'm Lovin It"
-//   },
-//   {
-//     id: '4',
-//     name: 'Subway',
-//     motto: 'Eat Fresh'
-//   }
-// ];
-
-// export const orgsMap = new Map<string, IOrg>();
-
-// type mapForOrg = Map<string, IOrg>;
-
 export const orgsMap: { [key: string]: IOrg } = {
   '1': {
     org_id: '1',
@@ -143,15 +116,18 @@ export class Orgs {
   }
 
   async getOrgUsers(id: string): Promise<IUserFromOrg[]> {
-    try{
+    try {
       const orgUsers = await this.pool.query(
         `SELECT user_id, username FROM users WHERE org_id IN ((SELECT org_id FROM users WHERE org_id IN ('${id}')))`
       );
       return orgUsers.rows as IUserFromOrg[];
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
       throw err;
     }
   }
 }
+
+const instance = new Orgs();
+Object.freeze(instance);
+export default instance;
