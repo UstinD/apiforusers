@@ -10,6 +10,12 @@ export interface IUser {
   org_id?: string | null;
 }
 
+export interface ILogin {
+  id: string;
+  iat: number;
+  exp: number;
+}
+
 class Users {
   readonly pool;
 

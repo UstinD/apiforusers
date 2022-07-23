@@ -1,16 +1,24 @@
-import { IUser } from '../repository/users';
+import { ILogin, IUser } from '../repository/users';
 import instance from '../repository/users';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import bcrpyt from 'bcryptjs';
 import Ajv from 'ajv';
 import Jwt from 'jsonwebtoken';
+import { io } from '../index';
+import jwt_decode from 'jwt-decode';
 
 // get a user
 export const getUser = async (req: Request, res: Response) => {
   try {
     const token = req.header('Authorization')?.substring(7);
     Jwt.verify(token as string, 'MY_SECRET_KEY');
+    const decoded: ILogin = jwt_decode(token as string);
+    if (decoded.id != req.params.id) {
+      return res.json({
+        msg: 'you are not authorized to view user'
+      });
+    }
   } catch (err) {
     return res.json({
       msg: 'you are not authorized to view user'
@@ -68,6 +76,7 @@ export const postUser = async (req: Request, res: Response) => {
     hashedpassword,
     req.body.email
   );
+  io.emit('newuser', newuser);
   return res.json(listofusers);
 };
 
@@ -80,6 +89,12 @@ export const updateUser = async (req: Request, res: Response) => {
     try {
       const token = req.header('Authorization')?.substring(7);
       Jwt.verify(token as string, 'MY_SECRET_KEY');
+      const decoded: ILogin = jwt_decode(token as string);
+      if (decoded.id != req.params.id) {
+        return res.json({
+          msg: 'you are not authorized to modify user'
+        });
+      }
     } catch (err) {
       return res.json({
         msg: 'you are not authorized to modify user'
@@ -143,6 +158,7 @@ export const updateUser = async (req: Request, res: Response) => {
       );
     }
     if (didupdate) {
+      io.emit('updateduser', updateduser);
       return res.json({ msg: 'user updated', updateduser });
     }
     return res.sendStatus(401);
@@ -156,6 +172,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   const diddelete = await instance.deleteUser(req.params.id);
   if (diddelete) {
     const listofusers = await instance.getUsers();
+    io.emit('deleteduser', listofusers);
     return res.json({
       msg: 'user deleted',
       listofusers

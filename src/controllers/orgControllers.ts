@@ -3,6 +3,7 @@ import instance from '../repository/orgs';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Ajv from 'ajv';
+import { io } from '../index';
 
 // get a org
 export const getOrg = async (req: Request, res: Response) => {
@@ -50,6 +51,7 @@ export const postOrg = async (req: Request, res: Response) => {
     req.body.org_name,
     req.body.motto
   );
+  io.emit('neworg', neworg);
   return res.json(listoforgs);
 };
 
@@ -102,6 +104,7 @@ export const updateOrg = async (req: Request, res: Response) => {
       themotto
     );
     if (didupdate) {
+      io.emit('updatedorg', updatedorg);
       return res.json({ msg: 'org updated', updatedorg });
     }
     return res.sendStatus(404);
@@ -115,6 +118,7 @@ export const deleteOrg = async (req: Request, res: Response) => {
   const diddelete = await instance.deleteOrg(req.params.orgID);
   if (diddelete) {
     const listoforgs = await instance.getOrgs();
+    io.emit('deletedorg', listoforgs);
     return res.json({
       msg: 'org deleted',
       listoforgs
